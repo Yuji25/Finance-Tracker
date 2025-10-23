@@ -1,7 +1,9 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import supabase from './config/supabase.js';
+import authRouter from './routes/auth.routes.js';
+import categoryRouter from './routes/category.routes.js';
+import peopleRouter from './routes/people.routes.js';
 
 dotenv.config();
 
@@ -11,36 +13,15 @@ const app = express();
 // Middlewares
 app.use(cors());
 app.use(express.json());
+app.use("/api/auth", authRouter);
+app.use("/api/categories", categoryRouter);
+app.use("/api/people", peopleRouter);
 
 
 // Checking backend is running
 app.get("/run", (req, res) => {
     res.send("Backend is running");
 })
-
-// --- 🔍 TEST SUPABASE CONNECTION ---
-app.get('/test-supabase', async (req, res) => {
-  try {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .limit(1);
-
-    if (error) throw error;
-
-    res.status(200).json({
-      success: true,
-      message: 'Connected to Supabase ✅',
-      data,
-    });
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: 'Supabase connection failed ❌',
-      error: err.message,
-    });
-  }
-});
 
 
 // App running 
