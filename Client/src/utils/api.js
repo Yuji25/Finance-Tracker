@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://finance-tracker-dxsh.onrender.com/", 
+  baseURL: "https://finance-tracker-dxsh.onrender.com/api", 
+  withCredentials: true,
 });
 
 
