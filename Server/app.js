@@ -4,6 +4,7 @@ import cors from 'cors';
 import authRouter from './routes/auth.routes.js';
 import categoryRouter from './routes/category.routes.js';
 import peopleRouter from './routes/people.routes.js';
+import transactionRouter from './routes/transaction.routes.js';
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use("/api/auth", authRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/people", peopleRouter);
+app.use("/api/transactions", transactionRouter);
 
 
 // Checking backend is running
