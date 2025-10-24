@@ -13,10 +13,25 @@ const app = express();
 
 
 // Middlewares
-app.use(cors({
-  origin: ["http://localhost:5173", "https://finance-tracker-pied-omega.vercel.app/"],
-  credentials: true
-}));
+const allowedOrigins = [
+  "http://localhost:5173", // local frontend
+  "https://finance-tracker-pied-omega.vercel.app" // deployed frontend
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true, // Tokens and headers ke liye
+  })
+);
 app.use(express.json());
 app.use("/api/auth", authRouter);
 app.use("/api/categories", categoryRouter);
