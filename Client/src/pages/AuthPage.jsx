@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../utils/api.js";
 import toast from "react-hot-toast";
 import Container from "../components/Container.jsx";
@@ -8,15 +9,17 @@ export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const endpoint = isLogin ? "/auth/login" : "/auth/signup";
       const { data } = await API.post(endpoint, { email, password });
-      localStorage.setItem("token", data.token);
-      toast.success(isLogin ? "Logged in!" : "Account created!");
-      window.location.href = "/dashboard";
+  localStorage.setItem("token", data.token);
+  toast.success(isLogin ? "Logged in!" : "Account created!");
+  // Use client-side navigation to prevent hard refresh (avoids 404 on Vercel for SPA routes)
+  navigate("/dashboard", { replace: true });
     } catch (err) {
       toast.error(err.response?.data?.error || "Something went wrong");
     }
