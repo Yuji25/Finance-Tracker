@@ -9,17 +9,26 @@ export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const endpoint = isLogin ? "/auth/login" : "/auth/signup";
-      const { data } = await API.post(endpoint, { email, password });
-  localStorage.setItem("token", data.token);
-  toast.success(isLogin ? "Logged in!" : "Account created!");
-  // Use client-side navigation to prevent hard refresh (avoids 404 on Vercel for SPA routes)
-  navigate("/dashboard", { replace: true });
+      if (isLogin) {
+        // Login flow
+        const { data } = await API.post("/auth/login", { email, password });
+        localStorage.setItem("token", data.token);
+        toast.success("Logged in!");
+        navigate("/dashboard", { replace: true });
+      } else {
+        // Signup then auto-login flow (backend register route is /register)
+        await API.post("/auth/register", { email, password, name });
+        const { data } = await API.post("/auth/login", { email, password });
+        localStorage.setItem("token", data.token);
+        toast.success("Account created!");
+        navigate("/dashboard", { replace: true });
+      }
     } catch (err) {
       toast.error(err.response?.data?.error || "Something went wrong");
     }
@@ -45,6 +54,19 @@ export default function AuthPage() {
           </div>
 
           <div className="space-y-3">
+            {!isLogin && (
+              <div>
+                <label className="block text-sm text-ink-600 mb-1">Name</label>
+                <input
+                  type="text"
+                  placeholder="Your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full rounded-lg border-ink-300 focus:border-brand-500 focus:ring-brand-500"
+                  required
+                />
+              </div>
+            )}
             <div>
               <label className="block text-sm text-ink-600 mb-1">Email</label>
               <input
