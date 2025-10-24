@@ -2,30 +2,91 @@ import supabase from "../config/supabase.js";
 
 export const createTransaction = async (req, res) => {
   try {
-    const { type, amount, transaction_date, category_id, note, person_id, len_den_type, description } = req.body;
     const user = req.user;
+    const { type, amount, note, categoryName, personName, len_den_type, description } = req.body;
 
-    if (!type || !amount) return res.status(400).json({ error: "Type and amount are required" });
-
-    // 1️⃣ Create base transaction
-    const { data: transaction, error: txError } = await supabase
+    // Inserting main transaction
+    const { data: tx, error: txError } = await supabase
       .from("transactions")
-      .insert([{ user_id: user.id, type, amount, transaction_date }])
+      .insert([{ user_id: user.id, type, amount }])
       .select()
       .single();
 
     if (txError) throw txError;
 
-    // 2️⃣ Insert into type-specific detail table
-    if (type === "expense") {
-      await supabase.from("expense_details").insert([{ transaction_id: transaction.id, category_id, note }]);
-    } else if (type === "income") {
-      await supabase.from("income_details").insert([{ transaction_id: transaction.id, category_id, note }]);
+    // Handle details based on type
+    if (type === "expense" || type === "income") {
+      // Find or create category
+      let { data: category } = await supabase
+        .from("categories")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("name", categoryName)
+        .eq("type", type)
+        .maybeSingle();
+
+      if (!category) {
+        const { data: newCat } = await supabase
+          .from("categories")
+          .insert([{ user_id: user.id, name: categoryName, type }])
+          .select()
+          .single();
+        category = newCat;
+      }
+
+      // Insert detail row
+      const detailTable = type === "expense" ? "expense_details" : "income_details";
+      const { error: detailError } = await supabase
+        .from(detailTable)
+        .insert([{ transaction_id: tx.id, category_id: category.id, note }]);
+
+      if (detailError) throw detailError;
     } else if (type === "len_den") {
-      await supabase.from("len_den_details").insert([{ transaction_id: transaction.id, person_id, len_den_type, description }]);
+      // Find or create person
+      let { data: person } = await supabase
+        .from("people")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("name", personName)
+        .maybeSingle();
+
+      if (!person) {
+        const { data: newPerson } = await supabase
+          .from("people")
+          .insert([{ user_id: user.id, name: personName }])
+          .select()
+          .single();
+        person = newPerson;
+      }
+
+      // Insert len_den detail row with description
+      const { error: lenDenError } = await supabase
+        .from("len_den_details")
+        .insert([{
+          transaction_id: tx.id,
+          person_id: person.id,
+          len_den_type,
+          description: description || "", // ensure description is stored
+        }]);
+
+      if (lenDenError) throw lenDenError;
     }
 
-    res.status(201).json({ message: "Transaction created", transaction });
+    // Return transaction with nested details for frontend convenience
+    const { data: fullTx, error: fetchError } = await supabase
+      .from("transactions")
+      .select(`
+        *,
+        expense_details(*, categories(name)),
+        income_details(*, categories(name)),
+        len_den_details(*, people(name))
+      `)
+      .eq("id", tx.id)
+      .maybeSingle();
+
+    if (fetchError) throw fetchError;
+
+    res.json({ success: true, transaction: fullTx });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
@@ -33,9 +94,12 @@ export const createTransaction = async (req, res) => {
 };
 
 
+
+
 export const getTransactions = async (req, res) => {
   try {
     const user = req.user;
+    const { type } = req.query; // 'expense', 'income', or 'len_den'
 
     const { data, error } = await supabase
       .from("transactions")
@@ -50,7 +114,51 @@ export const getTransactions = async (req, res) => {
 
     if (error) throw error;
 
-    res.json(data);
+    // Filter by type if query param is provided
+    let filteredData = type ? data.filter((tx) => tx.type === type) : data;
+
+    // Map to flatten nested relations
+    filteredData = filteredData.map((tx) => {
+      if (tx.type === "expense" && tx.expense_details) {
+        const detail = Array.isArray(tx.expense_details)
+          ? tx.expense_details[0]
+          : tx.expense_details;
+
+        return {
+          ...tx,
+          category_name: detail?.categories?.name || "Uncategorized",
+          note: detail?.note || "",
+        };
+      }
+      if (tx.type === "income" && tx.income_details) {
+        const detail = Array.isArray(tx.income_details)
+          ? tx.income_details[0]
+          : tx.income_details;
+
+        return {
+          ...tx,
+          category_name: detail?.categories?.name || "Uncategorized",
+          note: detail?.note || "",
+        };
+      }
+      if (tx.type === "len_den" && tx.len_den_details) {
+        const detail = Array.isArray(tx.len_den_details)
+          ? tx.len_den_details[0]
+          : tx.len_den_details;
+
+        return {
+          ...tx,
+          person_name: detail?.people?.name || "",
+          len_den_type: detail?.len_den_type || "",
+          description: detail?.description || "",
+        };
+      }
+      return tx;
+    });
+
+
+
+    res.json(filteredData);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
