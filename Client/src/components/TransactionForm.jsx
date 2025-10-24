@@ -40,7 +40,7 @@ export default function TransactionForm({ type, onSuccess }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-2 bg-gray-100 p-4 rounded-xl w-full max-w-md"
+      className="flex flex-col gap-3"
     >
       <input
         type="number"
@@ -49,7 +49,7 @@ export default function TransactionForm({ type, onSuccess }) {
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
         required
-        className="p-2 rounded"
+        className="w-full rounded-lg border-ink-300 focus:border-brand-500 focus:ring-brand-500"
       />
 
       {(type === "expense" || type === "income") && (
@@ -59,13 +59,13 @@ export default function TransactionForm({ type, onSuccess }) {
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             required
-            className="p-2 rounded"
+            className="w-full rounded-lg border-ink-300 focus:border-brand-500 focus:ring-brand-500"
           />
           <input
             placeholder="Note"
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            className="p-2 rounded"
+            className="w-full rounded-lg border-ink-300 focus:border-brand-500 focus:ring-brand-500"
           />
         </>
       )}
@@ -77,12 +77,12 @@ export default function TransactionForm({ type, onSuccess }) {
             value={person}
             onChange={(e) => setPerson(e.target.value)}
             required
-            className="p-2 rounded"
+            className="w-full rounded-lg border-ink-300 focus:border-brand-500 focus:ring-brand-500"
           />
           <select
             value={lenDenType}
             onChange={(e) => setLenDenType(e.target.value)}
-            className="p-2 rounded"
+            className="w-full rounded-lg border-ink-300 focus:border-brand-500 focus:ring-brand-500"
           >
             <option value="len">Len (Given)</option>
             <option value="den">Den (Taken)</option>
@@ -91,14 +91,14 @@ export default function TransactionForm({ type, onSuccess }) {
             placeholder="Description"
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            className="p-2 rounded"
+            className="w-full rounded-lg border-ink-300 focus:border-brand-500 focus:ring-brand-500"
           />
         </>
       )}
 
       <button
         type="submit"
-        className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+        className="btn-primary w-full"
       >
         Add {type}
       </button>

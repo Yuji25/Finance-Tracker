@@ -1,16 +1,41 @@
-# React + Vite
+# FinTrack – Client (React + Vite)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Modern, responsive UI for the Finance Tracker.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React 19, Vite 7
+- Tailwind CSS 3 (custom palette, Inter + Space Grotesk fonts)
+- Framer Motion (subtle animations)
+- Recharts (analytics charts)
+- React Router v7
+- Headless UI + Heroicons
 
-## React Compiler
+## App structure
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Landing (`/`): Intriguing hero, finance facts, responsive layout
+- Auth (`/auth`): Login/Signup toggle card
+- Dashboard (`/dashboard`): Balance, stat cards, expense/income pies, transactions tabs
+- Transactions (`/transactions`): Add/view grouped by Expense, Income, Len/Den
 
-## Expanding the ESLint configuration
+## Run locally
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```powershell
+cd "c:\Users\Lavanya\Desktop\Test Projects\project2\Client"
+npm install
+npm run dev
+```
+
+The API base URL is configured at `src/utils/api.js`.
+
+## Design notes
+
+- Color palette lives in `tailwind.config.js` (brand and ink scales)
+- Reusable utilities: see `src/index.css` (btn, card, heading)
+- Navbar + Footer wrap all pages; Private routes protect app areas
+
+## Screens
+
+- Clean stat cards for Income, Expense, Len/Den
+- Smooth tab switch for sections; skeletons/spinners during loads
+
