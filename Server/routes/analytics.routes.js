@@ -1,5 +1,5 @@
 import express from "express";
-import { verifyAuth } from "../middlewares/verifyAuth.js";
+import { verifyAuth } from "../middlewares/auth.middleware.js";
 import {
   getUserBalance,
   getCategoryStats,

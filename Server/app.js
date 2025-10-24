@@ -5,6 +5,7 @@ import authRouter from './routes/auth.routes.js';
 import categoryRouter from './routes/category.routes.js';
 import peopleRouter from './routes/people.routes.js';
 import transactionRouter from './routes/transaction.routes.js';
+import analyticsRouter from './routes/analytics.routes.js';
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/people", peopleRouter);
 app.use("/api/transactions", transactionRouter);
+app.use("/api/analytics", analyticsRouter);
 
 
 // Checking backend is running
