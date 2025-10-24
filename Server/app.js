@@ -13,7 +13,10 @@ const app = express();
 
 
 // Middlewares
-app.use(cors());
+app.use(cors({
+  origin: ["http://localhost:5173", "https://finance-tracker-pied-omega.vercel.app/"],
+  credentials: true
+}));
 app.use(express.json());
 app.use("/api/auth", authRouter);
 app.use("/api/categories", categoryRouter);
